@@ -1,7 +1,7 @@
+
 const express = require('express');
 const app = express();
 const ProductManager = require('../components/ProductManager');
-const carrito = require('./carrito.js')
 
 const products = new ProductManager();
 
@@ -19,8 +19,9 @@ app.get('/products', async (req, res) => {
 
 app.get('/products/:id', async (req, res) => {
   try {
+    const allProducts = await products.readProducts();
     let id = parseInt(req.params.id);
-    let productById = await getProductById(id);
+    let productById = allProducts.find((product) => product.id === id);
     if (!productById) return res.status(404).send('Producto no encontrado');
     res.send(productById);
   } catch (error) {
@@ -28,15 +29,9 @@ app.get('/products/:id', async (req, res) => {
   }
 });
 
-async function getProductById(id) {
-  const allProducts = await products.readProducts();
-  return allProducts.find((product) => product.id === id);
-}
-
 app.listen(8080, () => {
   console.log("Servidor Express escuchando en el puerto 8080");
 });
-
 
 
 
