@@ -2,15 +2,26 @@ const fs = require('fs/promises');
 
 class ProductManager {
   constructor() {
-    this.path = './product.json';
+    this.path = './../src/Data/product.json'
+    
     this.products = [];
+    this.loadProducts();
   }
 
-  static id = 0;
+  async loadProducts() {
+    try {
+      const data = await fs.readFile(this.path, 'utf-8');
+      this.products = JSON.parse(data);
+    } catch (error) {
+      this.products = [];
+    }
+  }
+
+  async saveProducts() {
+    await fs.writeFile(this.path, JSON.stringify(this.products, null, 2) + '\n');
+  }
 
   addProduct = async (title, description, price, thumbnail, code, stock) => {
-    ProductManager.id++;
-
     let newProduct = {
       title,
       description,
@@ -18,11 +29,11 @@ class ProductManager {
       thumbnail,
       code,
       stock,
-      id: ProductManager.id,
+      id: this.products.length + 1,
     };
     this.products.push(newProduct);
 
-    await fs.writeFile(this.path, JSON.stringify(this.products, null, 2) + '\n');
+    await this.saveProducts();
   };
 
   readProducts = async () => {
@@ -36,20 +47,18 @@ class ProductManager {
   };
 
   getProductById = async (id) => {
-    let devolver = await this.readProducts();
-    if (!devolver.find((p) => p.id === id)) {
-      console.log('Producto no encontrado');
-    } else {
-      console.log(devolver.find((p) => p.id === id));
-    }
+    let products = await this.readProducts();
+    let product = products.find((p) => p.id === id);
+    return product ? product : null;
   };
 
   deleteProductById = async (id) => {
     let eliminar = await this.readProducts();
-    let productFilter = eliminar.filter((p) => p.id != id);
+    let productFilter = eliminar.filter((p) => p.id !== id);
     await fs.writeFile(this.path, JSON.stringify(productFilter, null, 2) + '\n');
     console.log('Producto Eliminado');
   };
+  
 
   updateProduct = async ({ id, ...product }) => {
     await this.deleteProductById(id);
@@ -60,7 +69,14 @@ class ProductManager {
     ];
     await fs.writeFile(this.path, JSON.stringify(productReemplazado, null, 2) + '\n');
   };
+
+  findIndex(predicate) {
+    return this.products.findIndex(predicate);
+  }
 }
 
-module.exports = ProductManager
+module.exports = ProductManager;
+
+
+
 
