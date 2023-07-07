@@ -1,3 +1,4 @@
+
 const express = require('express');
 const ProductManager = require('../components/ProductManager');
 const CartManager = require('../components/CartManager');
@@ -75,8 +76,5 @@ app.post('/api/carts/:cid/product/:pid', (req, res) => {
 app.listen(port, () => {
   console.log(`Servidor escuchando en el puerto ${port}`);
 });
-
-
-
 
 
